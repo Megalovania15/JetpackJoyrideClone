@@ -7,9 +7,19 @@ public class LevelElement : MonoBehaviour, IMoveable
 
     private Rigidbody2D rb;
 
-    void Awake()
-    { 
-        rb = GetComponent<Rigidbody2D>();
+    void OnEnable()
+    {
+        if (rb is null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+        
+        Move();
+    }
+
+    void OnDisable()
+    {
+        ZeroOutVelocity();
     }
 
     public void Move()
@@ -20,5 +30,10 @@ public class LevelElement : MonoBehaviour, IMoveable
     public void IncreaseMovementSpeed(int speedMultiplier)
     { 
         
+    }
+
+    void ZeroOutVelocity()
+    { 
+        rb.linearVelocity = Vector2.zero;
     }
 }
