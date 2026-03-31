@@ -1,44 +1,93 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using System;
 
 //rename class to more accurately describe it's function
 public class LevelSpawner : MonoBehaviour
 {
-    public readonly Vector3 exitBoundaryPos = new Vector3(-20f, -5f); 
-    public readonly Vector3 entryBoundaryPos = new Vector3(11f, -5f);
-    public readonly Vector3 posToSpawnNewLevelElement = new Vector3 (5f, 0f);
+    [SerializeField] private Transform exitBoundaryPos;
+    [SerializeField] private Transform entryBoundaryPos;
+    //this is the object scale
+    public readonly Vector3 posToSpawnNewLevelElement = new Vector3(5f, 0f);
+    [SerializeField] private int startingPlatforms = 5;
     [SerializeField] private ObjectPooler levelPool;
-    [SerializeField] private GameObject floorSpawn;
     //[SerializeField] private Vector2 spawnPosition = Vector2.zero;
-    [SerializeField] private float secondsToSpawnArea = 5f;
+    private Vector3 nextSpawnPos = Vector3.zero;
+    private Vector3 lastSpawnedPlatform = Vector3.zero;
 
-    void Awake()
+    private LinkedList<GameObject> spawnedObjects = new();
+
+    void OnDisable()
     {
-        levelPool = GetComponentInParent<ObjectPooler>();
+        foreach (var levelObject in spawnedObjects)
+        {
+            levelObject.GetComponent<LevelElement>().onBoundaryPointPassed.RemoveListener(RecycleLevelSegment);
+        }
+    }
+
+    void Start()
+    {
+        levelPool = GetComponent<ObjectPooler>();
+
+        GameObject firstPlatform = levelPool.RetrieveObject();
+        InitialiseLevelSegment(firstPlatform, exitBoundaryPos.position);
+
+        while (spawnedObjects.Last.Value.transform.position.x < entryBoundaryPos.position.x)
+        {
+            var previousObj = spawnedObjects.Last.Value;
+            var nextPosition = 
+                previousObj.transform.position + posToSpawnNewLevelElement;
+            var nextPlatform = levelPool.RetrieveObject();
+            InitialiseLevelSegment(nextPlatform, nextPosition);
+        }
+        /*newPlatform.transform.position = new Vector3(-9f, -5f);
+        nextSpawnPos = newPlatform.transform.position + posToSpawnNewLevelElement;
+        newPlatform.GetComponent<LevelElement>().onEntryPointPassed.AddListener(LevelElementEntryPointPassed);
+
+        GameObject nextPlatform = null;
+
+        for (int i = 0; i < startingPlatforms; i++)
+        {
+            nextPlatform = levelPool.RetrieveObject();
+            nextPlatform.transform.position = nextSpawnPos;
+            nextSpawnPos = nextPlatform.transform.position + posToSpawnNewLevelElement;
+            lastSpawnedPlatform = nextPlatform.transform.position;
+            nextPlatform.SetActive(true);
+            nextPlatform.GetComponent<LevelElement>().IsTail = true;
+            nextPlatform.GetComponent<LevelElement>().onEntryPointPassed.AddListener(LevelElementEntryPointPassed);
+        }*/
     }
 
     void Update()
     {
-        AddNextElement();
-        DisableElement();
+        //AddNextElement();
+        //DisableElement();
     }
 
-    void AddNextElement()
+    void InitialiseLevelSegment(GameObject nextPlatform, Vector3 nextPosition)
     {
-        if (Vector3.Distance(transform.position + posToSpawnNewLevelElement,
-            entryBoundaryPos) < 0.01f)
-        {
-            GameObject nextLevelElement = levelPool.RetrieveObject();
-            nextLevelElement.transform.position = transform.position + posToSpawnNewLevelElement;
-        }
+        var nextLevelElement = nextPlatform.GetComponent<LevelElement>();
+        nextLevelElement.BoundaryPos = entryBoundaryPos;
+        nextPlatform.transform.position = nextPosition;
+        nextPlatform.SetActive(true);
+        nextLevelElement.OnBoundaryPointPassed(RecycleLevelSegment);
+        spawnedObjects.AddLast(nextPlatform);
     }
 
-    void DisableElement()
+    void RecycleLevelSegment()
     {
-        if (Vector3.Distance(transform.position, exitBoundaryPos) < 0.01f)
+        //take the first value, disable it and add a new object to the end of the list
+        while (spawnedObjects.First.Value.transform.position.x < exitBoundaryPos.position.x)
         {
-            levelPool.DisableObject(this.gameObject);
+            var firstObject = spawnedObjects.First.Value;
+            firstObject.GetComponent<LevelElement>().RemoveEventListener(RecycleLevelSegment);
+            levelPool.DisableObject(firstObject);
+            spawnedObjects.RemoveFirst();
+            var previousObject = spawnedObjects.Last.Value;
+            var nextPosition = previousObject.transform.position + posToSpawnNewLevelElement;
+            var nextLevelElement = levelPool.RetrieveObject();
+            InitialiseLevelSegment(nextLevelElement, nextPosition);
         }
     }
 

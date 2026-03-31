@@ -6,16 +6,19 @@ public class ObjectPooler : MonoBehaviour
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 10;
 
-    private List<GameObject> pool = new();
+    public List<GameObject> Pool { get; private set; } = new();
 
     void Awake()
     {
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            pool.Add(transform.GetChild(i).gameObject);
-        }
         InitialisePool();
-        
+
+        /*if (transform.childCount != 0)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Pool.Add(transform.GetChild(i).gameObject);
+            }
+        }*/
     }
 
     void InitialisePool()
@@ -32,11 +35,11 @@ public class ObjectPooler : MonoBehaviour
     {
         //take the first item off the list that is not activated in the hierarchy
 
-        foreach (GameObject obj in pool)
+        foreach (GameObject obj in Pool)
         {
             if (!obj.activeInHierarchy)
             {
-                obj.SetActive(true);
+                //obj.SetActive(true);
                 return obj;
             }
         }
@@ -52,11 +55,16 @@ public class ObjectPooler : MonoBehaviour
         objectToDisable.SetActive(false);
     }
 
-    GameObject CreateNewObject()
+    protected virtual GameObject CreateNewObject()
     {
         GameObject obj = Instantiate(prefab, transform);
-        pool.Add(obj);
+        Pool.Add(obj);
         obj.SetActive(false);
         return obj;
+    }
+
+    void ShufflePool()
+    { 
+        
     }
 }
