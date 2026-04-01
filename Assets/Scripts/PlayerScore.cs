@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -8,10 +9,12 @@ public class PlayerScore : MonoBehaviour
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private float speed = 6f;
     
-    private int currentScore = 0;
+    private double currentScore = 0;
     private int bestScore = 0;
 
-    const float dt = 0.5f;
+    private int collectibleScore = 0;
+
+    const float dt = 0.01f;
 
     private Coroutine scoreIncrease;
 
@@ -27,9 +30,9 @@ public class PlayerScore : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(dt); // Fixed UI update rate
-            currentScore += Mathf.RoundToInt(speed * scoreIncreaseRate);
+            currentScore += speed * scoreIncreaseRate * dt;
             // currentScore += speed (m/s) * units_per_meter (u/m) * dt (s); increase in speed increases rate of score increase
-            scoreText.text = $"{currentScore}m";
+            scoreText.text = $"{Math.Round(currentScore)}m";
         }
     }
 
@@ -37,8 +40,13 @@ public class PlayerScore : MonoBehaviour
     {
         if (currentScore > bestScore)
         { 
-            bestScore = currentScore;
+            //bestScore = currentScore;
             PlayerPrefs.SetInt("High score", bestScore);
         }
+    }
+
+    public void AddToScore()
+    {
+        collectibleScore++;
     }
 }

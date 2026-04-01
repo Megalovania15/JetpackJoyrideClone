@@ -37,12 +37,25 @@ public class ObstacleSpawner : MonoBehaviour
         //randomise entry position, y value will change, but they'll always spawn at the same
         //x value
         float yPos = Random.Range(entryPointPosBottom.position.y, entryPointPosTop.position.y);
-
         var spawnPos = new Vector2(entryPointPosTop.position.x, yPos);
-
         GameObject newObstacle = obstaclePool.RetrieveObject();
 
+        while (!IsSpawnPointValid(spawnPos, newObstacle))
+        {
+            yPos = Random.Range(entryPointPosBottom.position.y, entryPointPosTop.position.y);
+            spawnPos = new Vector2(entryPointPosTop.position.x, yPos);
+        }
+
         InitialiseObstacle(newObstacle, spawnPos);
+    }
+
+    bool IsSpawnPointValid(Vector2 spawnPos, GameObject objToSpawn)
+    {
+        if (!Physics2D.OverlapBox(spawnPos, objToSpawn.transform.localScale, objToSpawn.transform.localRotation.z))
+        {
+            return true;
+        }
+        return false;
     }
 
     void RemoveObstacle()
