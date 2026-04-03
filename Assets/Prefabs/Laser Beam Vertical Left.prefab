@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5796995836724286499}
   - component: {fileID: 7150249097125719857}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 7190453496260158393}
   - component: {fileID: 8778732017903353120}
   - component: {fileID: 2190525215127074765}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Laser Beam Vertical Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -291,7 +291,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8369367714855312330}
   - component: {fileID: 6647518521864647567}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

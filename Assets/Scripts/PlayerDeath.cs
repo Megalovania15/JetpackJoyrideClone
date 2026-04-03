@@ -4,6 +4,7 @@ public class PlayerDeath : MonoBehaviour
 {
     public void Die()
     { 
-        gameObject.SetActive(false);
+
+        //gameObject.SetActive(false);
     }
 }
